@@ -13,13 +13,13 @@ require_once "../src/WordBreaker.php";
 use PhlongTaIam\WordBreaker as WordBreaker;
 
 if (isset($_POST["txt"])) {
-    echo "Text:".$_POST["txt"];
+    echo "Text:".htmlspecialchars($_POST["txt"], ENT_QUOTES, "UTF-8");
     $wordBreaker = new WordBreaker("../data/tdict-std.txt");
 ?>
 <ul>
 <?php
     foreach($wordBreaker->breakIntoWords($_POST["txt"]) as $w) {
-        print "<li>$w</li>\n";
+        print "<li>" . htmlspecialchars($w, ENT_QUOTES, "UTF-8") . "</li>\n";
     }
 }
 ?>

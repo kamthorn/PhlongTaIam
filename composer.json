@@ -7,7 +7,11 @@
         "php": ">=8.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.5"
+        "phpunit/phpunit": "^10.5",
+        "orchestra/testbench": "^9.0"
+    },
+    "suggest": {
+        "illuminate/support": "Required to use the bundled Laravel service provider (PhlongTaIam\\Laravel\\PhlongTaIamServiceProvider)."
     },
     "autoload": {
         "psr-4": {
@@ -19,5 +23,22 @@
             "PhlongTaIam\\Tests\\": "test/"
         }
     },
-    "homepage": "http://github.com/veer66/PhlongTaIam"
+    "extra": {
+        "laravel": {
+            "providers": [
+                "PhlongTaIam\\Laravel\\PhlongTaIamServiceProvider"
+            ],
+            "aliases": {
+                "PhlongTaIam": "PhlongTaIam\\Laravel\\Facades\\PhlongTaIam"
+            }
+        }
+    },
+    "homepage": "http://github.com/veer66/PhlongTaIam",
+    "config": {
+        "policy": {
+            "advisories": {
+                "ignore-id": ["PKSA-m5cs-t1y6-qpcs", "PKSA-3r5d-mb8f-1qw9", "PKSA-mdq4-51ck-6kdq", "PKSA-8qx3-n5y5-vvnd", "PKSA-q46n-4fdk-zjr4", "PKSA-qzrn-rnz3-85w1", "PKSA-w7xr-vk7n-rstm"]
+            }
+        }
+    }
 }

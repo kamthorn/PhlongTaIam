@@ -16,8 +16,19 @@ use RuntimeException;
  */
 class Dict implements RuleInterface
 {
+    /** Cost charged for a known word when the dictionary carries no counts. */
+    public const FLAT_COST = 1.0;
+
     /** @var array<string, bool> Prefix => whether that prefix is itself a word. */
     public array $prefixes = [];
+
+    /** @var array<string, int> Word => how often a corpus contained it. */
+    public array $counts = [];
+
+    /** @var array<string, float> Word => -log(probability), built on demand. */
+    private array $costs = [];
+
+    private int $totalCount = 0;
 
     /**
      * Replace the dictionary with the words in $dictPath.
@@ -25,6 +36,9 @@ class Dict implements RuleInterface
     public function loadDict(string $dictPath): void
     {
         $this->prefixes = [];
+        $this->counts = [];
+        $this->costs = [];
+        $this->totalCount = 0;
         $this->addDict($dictPath);
     }
 
@@ -39,12 +53,20 @@ class Dict implements RuleInterface
             throw new RuntimeException("Cannot read dictionary file: $dictPath");
         }
 
-        foreach (explode("\n", $contents) as $word) {
-            $this->addWord(trim($word, "\r"));
+        foreach (explode("\n", $contents) as $line) {
+            $line = trim($line, "\r");
+            // "word" or, when the list carries corpus counts, "word<TAB>count".
+            $tab = strpos($line, "\t");
+            if ($tab === false) {
+                $this->addWord($line);
+            } else {
+                $count = substr($line, $tab + 1);
+                $this->addWord(substr($line, 0, $tab), ctype_digit($count) ? (int) $count : null);
+            }
         }
     }
 
-    public function addWord(string $word): void
+    public function addWord(string $word, ?int $count = null): void
     {
         $chars = mb_str_split($word, 1, "UTF-8");
         $last = count($chars) - 1;
@@ -57,6 +79,39 @@ class Dict implements RuleInterface
                 $this->prefixes[$prefix] = false;
             }
         }
+
+        if ($count !== null && $last >= 0) {
+            $this->counts[$word] = ($this->counts[$word] ?? 0) + $count;
+            $this->totalCount += $count;
+            $this->costs = [];
+        }
+    }
+
+    /** Whether this dictionary carries corpus counts to weight words by. */
+    public function isWeighted(): bool
+    {
+        return $this->counts !== [];
+    }
+
+    /**
+     * How much a path pays for using $word.
+     *
+     * Without counts every known word costs the same, which is what the
+     * unweighted selector expects. With counts it is -log(p), so a path made
+     * of likely words is cheaper than one made of unlikely ones, and a word
+     * the counts never saw is treated as having been seen once.
+     */
+    public function costOf(string $word): float
+    {
+        if (!$this->isWeighted()) {
+            return self::FLAT_COST;
+        }
+        if (isset($this->costs[$word])) {
+            return $this->costs[$word];
+        }
+
+        $count = $this->counts[$word] ?? 1;
+        return $this->costs[$word] = -log($count / ($this->totalCount + 1));
     }
 
     /**

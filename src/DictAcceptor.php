@@ -29,6 +29,9 @@ class DictAcceptor extends AbstractAcceptor
             $this->prefix = $prefix;
             $this->strOffset++;
             $this->isFinal = $isWord;
+            if ($isWord) {
+                $this->cost = $this->dict->costOf($prefix);
+            }
         }
         return $this;
     }

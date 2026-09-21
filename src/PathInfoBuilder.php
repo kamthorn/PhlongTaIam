@@ -6,6 +6,13 @@ namespace PhlongTaIam;
 class PathInfoBuilder
 {
     /**
+     * What an unknown span costs a weighted path. High enough that a reading
+     * made of known words wins, low enough that a rare word does not lose to
+     * one. Tuned against LST20; see tools/evaluate.php.
+     */
+    public const UNKNOWN_COST = 18.0;
+
+    /**
      * @param  array<int, array<string, mixed>> $path
      * @param  AbstractAcceptor[] $finalAcceptors
      * @return array<int, array<string, mixed>>
@@ -20,6 +27,7 @@ class PathInfoBuilder
                         "mw" => $_info["mw"] + $acceptor->mw,
                         "w" => $acceptor->w + $_info["w"],
                         "unk" => $acceptor->unk + $_info["unk"],
+                        "cost" => $_info["cost"] + $acceptor->cost,
                         "type" => $acceptor->type];
         }
         return $infos;
@@ -48,12 +56,14 @@ class PathInfoBuilder
                     "mw" => 0,
                     "w" => 1 + $_info["w"],
                     "unk" => 1 + $_info["unk"],
+                    "cost" => $_info["cost"] + self::UNKNOWN_COST,
                     "type" => "UNK"];
         } else {
             return ["p" => $leftBoundary,
                     "mw" => $_info["mw"],
                     "w" => 1 + $_info["w"],
                     "unk" => 1 + $_info["unk"],
+                    "cost" => $_info["cost"] + self::UNKNOWN_COST,
                     "type" => "UNK"];
         }
     }

@@ -175,16 +175,47 @@ php tools/evaluate.php --corpus=/path/to/LST20_Corpus/eval --dict=my-words.txt
 ```
 
 In that example the 8,000 words this adds take word-level F1 from **0.67 to
-0.90**. Note that more words is not automatically better: keeping every word
-in the corpus, including ones seen once, scored *worse* than keeping those
-seen at least five times, because rare words add ambiguity without adding
-coverage. `--min-freq` is worth tuning on your own data.
-
-Load the result alongside the standard list:
+0.90**. Load the result alongside the standard list:
 
 ```php
 $wordBreaker = new WordBreaker([$standardList, 'my-words.txt']);
 ```
+
+More words is not automatically better. Where a span can be read several
+ways, a plain dictionary has nothing to choose with, so rare words mostly add
+ambiguity: keeping every word seen even once scored *worse* than keeping only
+those seen five times or more. `--min-freq` is worth tuning on your own data,
+especially for text without spaces, where there is more ambiguity to get
+wrong.
+
+### Weighting words by how common they are
+
+`--with-frequency` writes `word<TAB>count` instead of bare words. Given
+counts, the segmenter prefers the likelier reading of an ambiguous span
+instead of applying fixed rules, and rare words stop being a liability:
+
+```bash
+php tools/build-dictionary.php --corpus=/path/to/train --min-freq=5 \
+    --with-frequency --out=my-words.txt
+```
+
+Measured on the LST20 test split and on a section of the Blackboard
+Treebank, with a dictionary built from LST20's train split:
+
+| dictionary            | LST20 test | Blackboard |
+| --------------------- | ---------- | ---------- |
+| bundled list only     | 0.743      | 0.694      |
+| + words, no counts    | 0.922      | 0.947      |
+| + words with counts   | **0.929**  | **0.952**  |
+
+Counts help at every vocabulary size, so use them if you have them. Build the
+counted list *without* `--exclude`: that flag removes the words the other
+dictionary already has, which are the commonest ones, leaving the weighting
+to treat them as rare. Let the two dictionaries overlap instead.
+
+A counted list of 12,000 words costs about 5MB of memory over the bundled
+one, and segmentation runs at the same speed either way. Nothing changes for
+a dictionary without counts - the original selection rules still apply.
 
 A dictionary built this way is derived from that corpus, so check the
 corpus's licence before redistributing it. Research corpora frequently allow

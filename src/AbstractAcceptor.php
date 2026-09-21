@@ -38,5 +38,11 @@ abstract class AbstractAcceptor
     /** Unknown-character count contributed to a path. */
     public int $unk = 0;
 
+    /**
+     * What a path pays for taking this token. Only the weighted selector
+     * reads it; without corpus counts every token costs the same.
+     */
+    public float $cost = Dict::FLAT_COST;
+
     abstract public function transit(string $ch): static;
 }

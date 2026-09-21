@@ -4,6 +4,23 @@ Changelog
 All notable changes to this package. This project follows
 [semantic versioning](https://semver.org/).
 
+Unreleased
+----------
+
+### Added
+
+* Dictionaries can carry corpus counts as `word<TAB>count`. When they do, the
+  segmenter scores candidate readings by how likely their words are instead of
+  by fixed counting rules, which is what lets a large vocabulary help rather
+  than hurt. Measured against LST20's test split with a dictionary built from
+  its train split, F1 goes from 0.922 without counts to 0.929 with them, and
+  from 0.947 to 0.952 on the Blackboard Treebank. A dictionary without counts
+  behaves exactly as before.
+* `tools/evaluate.php` and `tools/build-dictionary.php`: measure segmentation
+  accuracy against an annotated corpus, and turn one into a dictionary.
+  `--with-frequency` writes the counts above. No corpus ships with this
+  package and neither tool is published with it.
+
 2.0.0
 -----
 

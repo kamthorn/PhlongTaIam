@@ -6,14 +6,29 @@ namespace PhlongTaIam;
 class PathSelector
 {
     /**
-     * Pick the cheapest candidate: fewest unknown characters first, then
-     * fewest merges, then fewest words.
+     * @param bool $weighted Compare candidates by accumulated cost, which is
+     *                       only meaningful when the dictionary carries corpus
+     *                       counts. Otherwise every known word costs the same
+     *                       and the counting rules below decide.
+     */
+    public function __construct(private bool $weighted = false)
+    {
+    }
+
+    /**
+     * Pick the cheapest candidate: by accumulated cost when weighted,
+     * otherwise fewest unknown characters, then fewest merges, then fewest
+     * words.
      *
      * @param  array<int, array<string, mixed>> $paths
      * @return array<string, mixed>|null
      */
     public function selectPath(array $paths): ?array
     {
+        if ($this->weighted) {
+            return $this->selectCheapest($paths);
+        }
+
         $selectedPath = null;
         foreach ($paths as $path) {
             if (is_null($selectedPath)) {
@@ -29,6 +44,21 @@ class PathSelector
                             $selectedPath = $path;
                     }
                 }
+            }
+        }
+        return $selectedPath;
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>> $paths
+     * @return array<string, mixed>|null
+     */
+    private function selectCheapest(array $paths): ?array
+    {
+        $selectedPath = null;
+        foreach ($paths as $path) {
+            if ($selectedPath === null || $path["cost"] < $selectedPath["cost"]) {
+                $selectedPath = $path;
             }
         }
         return $selectedPath;

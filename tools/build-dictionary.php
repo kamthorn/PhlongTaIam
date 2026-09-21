@@ -21,7 +21,7 @@ require __DIR__ . '/lib/CorpusReader.php';
 
 use PhlongTaIam\Tools\CorpusReader;
 
-$options = getopt('', ['corpus:', 'format::', 'min-freq::', 'exclude::', 'out::', 'limit::', 'help']);
+$options = getopt('', ['corpus:', 'format::', 'min-freq::', 'exclude::', 'out::', 'limit::', 'with-frequency', 'help']);
 
 if (isset($options['help']) || !isset($options['corpus'])) {
     fwrite(STDERR, <<<TXT
@@ -36,6 +36,10 @@ if (isset($options['help']) || !isset($options['corpus'])) {
                       output is a supplement rather than a replacement
       --out=FILE      Where to write (default: stdout)
       --limit=N       Only read the first N files
+      --with-frequency
+                      Write "word<TAB>count" instead of just the word. The
+                      counts let WordBreaker prefer the likelier reading of an
+                      ambiguous span; without them all known words are equal.
 
     TXT);
     exit(isset($options['help']) ? 0 : 1);
@@ -100,7 +104,21 @@ foreach ($frequency as $word => $count) {
 }
 sort($kept, SORT_STRING);
 
-$body = $kept ? implode("\n", $kept) . "\n" : '';
+$withFrequency = isset($options['with-frequency']);
+
+if ($withFrequency && $exclude) {
+    fwrite(STDERR,
+        "warning: --exclude drops the words the other dictionary already has,\n"
+        . "  which are the commonest ones, so the counts you are writing cover\n"
+        . "  everything except them. The weighting then treats those common\n"
+        . "  words as if they were rare. Build the counted list without\n"
+        . "  --exclude and let the dictionaries overlap instead.\n");
+}
+$lines = $withFrequency
+    ? array_map(static fn(string $w): string => $w . "\t" . $frequency[$w], $kept)
+    : $kept;
+
+$body = $lines ? implode("\n", $lines) . "\n" : '';
 if ($out === null) {
     echo $body;
 } elseif (file_put_contents($out, $body) === false) {

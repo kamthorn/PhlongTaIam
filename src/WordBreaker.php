@@ -32,7 +32,7 @@ class WordBreaker
         $this->acceptors->creators[] = new SpaceRule();
         $this->acceptors->creators[] = new SingleSymbolRule();
         $this->pathInfoBuilder = new PathInfoBuilder();
-        $this->pathSelector = new PathSelector();
+        $this->pathSelector = new PathSelector($this->dict->isWeighted());
     }
 
     /**
@@ -43,6 +43,7 @@ class WordBreaker
         return [["p" => null,
                  "w" => 0,
                  "unk" => 0,
+                 "cost" => 0.0,
                  "type" => "INIT",
                  "mw" => 0]];
     }

@@ -7,7 +7,7 @@ class PathInfoBuilder
 {
     /**
      * @param  array<int, array<string, mixed>> $path
-     * @param  object[] $finalAcceptors
+     * @param  AbstractAcceptor[] $finalAcceptors
      * @return array<int, array<string, mixed>>
      */
     public function buildByAcceptors(array $path, array $finalAcceptors, int $i): array
@@ -60,7 +60,7 @@ class PathInfoBuilder
 
     /**
      * @param  array<int, array<string, mixed>> $path
-     * @param  object[] $finalAcceptors
+     * @param  AbstractAcceptor[] $finalAcceptors
      * @param  string[] $chars
      * @return array<int, array<string, mixed>>
      */

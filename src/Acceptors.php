@@ -5,13 +5,13 @@ namespace PhlongTaIam;
 
 class Acceptors
 {
-    /** @var object[] Rule/dictionary objects that can start a new acceptor. */
+    /** @var RuleInterface[] Rules that can start a new acceptor. */
     public array $creators = [];
 
-    /** @var object[] Acceptors still alive at the current position. */
+    /** @var AbstractAcceptor[] Acceptors still alive at the current position. */
     public array $current = [];
 
-    /** @var array<string, object> Tags claimed at the current position. */
+    /** @var array<string, AbstractAcceptor> Tags claimed at the current position. */
     public array $tag = [];
 
     public function reset(): void
@@ -43,7 +43,7 @@ class Acceptors
     }
 
     /**
-     * @return object[]
+     * @return AbstractAcceptor[]
      */
     public function getFinalAcceptors(): array
     {

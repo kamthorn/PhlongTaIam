@@ -9,7 +9,7 @@
 <input type="submit" value="segment">
 </form>
 <?php
-require_once "../src/WordBreaker.php";
+require_once "../src/autoload.php";
 use PhlongTaIam\WordBreaker as WordBreaker;
 
 if (isset($_POST["txt"])) {

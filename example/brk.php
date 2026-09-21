@@ -3,7 +3,7 @@
 <body>
 <ul>
 <?php
-require_once "../src/WordBreaker.php";
+require_once "../src/autoload.php";
 
 use PhlongTaIam\WordBreaker as WordBreaker;
 $wordBreaker = new WordBreaker("../data/tdict-std.txt");

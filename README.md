@@ -45,9 +45,9 @@ which returns `[['s' => start, 'e' => end], ...]` (start inclusive, end
 exclusive, in UTF-8 character counts).
 
 You can also run the package without Composer by copying `src/` and `data/`
-into a location your web server can reach and `require`-ing
-`src/WordBreaker.php` directly - see `example/brk.php` and
-`example/demo.php`.
+into a location your web server can reach and requiring `src/autoload.php`,
+which registers a small autoloader for the `PhlongTaIam\` namespace - see
+`example/brk.php` and `example/demo.php`.
 
 Laravel
 -------

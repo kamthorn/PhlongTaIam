@@ -3,12 +3,6 @@ declare(strict_types=1);
 
 namespace PhlongTaIam;
 
-require_once "Dict.php";
-require_once "PathInfoBuilder.php";
-require_once "Acceptors.php";
-require_once "PathSelector.php";
-require_once "LatinRules.php";
-
 /**
  * Thai word segmenter driven by a plain-text, newline-separated dictionary.
  */

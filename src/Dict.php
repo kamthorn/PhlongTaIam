@@ -5,7 +5,7 @@ namespace PhlongTaIam;
 
 use RuntimeException;
 
-class Dict
+class Dict implements RuleInterface
 {
     /** @var string[] Dictionary words, lexicographically sorted. */
     public array $dict = [];
@@ -96,37 +96,10 @@ class Dict
      * A dictionary acceptor is started at every position, so unlike the rule
      * creators this one ignores the tags already claimed at this position.
      *
-     * @param array<string, object> $tag
+     * @param array<string, AbstractAcceptor> $tag
      */
     public function createAcceptor(array $tag = []): DictAcceptor
     {
         return new DictAcceptor($this);
-    }
-}
-
-class DictAcceptor
-{
-    public Dict $dict;
-    public int $l;
-    public int $r;
-    public int $strOffset = 0;
-    public bool $isFinal = false;
-    public bool $isError = false;
-    public string $tag = "DICT";
-    public string $type = "DICT";
-    public int $w = 1;
-    public int $mw = 0;
-    public int $unk = 0;
-
-    public function __construct(Dict $dict)
-    {
-        $this->dict = $dict;
-        $this->l = 0;
-        $this->r = count($dict->dict) - 1;
-    }
-
-    public function transit(string $ch): DictAcceptor
-    {
-        return $this->dict->transit($this, $ch);
     }
 }

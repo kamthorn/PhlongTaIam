@@ -40,4 +40,13 @@ final class WordBreakerTest extends TestCase
             $this->wordBreaker->breakIntoWords('ฉัน5กิน')
         );
     }
+
+    public function testDoesNotSplitAKnownWordWhenFollowedByAnUnknownCharacter(): void
+    {
+        // Regression test: an off-by-one in the left-boundary bookkeeping
+        // used to make the unknown "5" swallow the last character of the
+        // preceding dictionary word (e.g. "กิน5" broke into "กิ" + "น5").
+        $this->assertSame(['กิน', '5'], $this->wordBreaker->breakIntoWords('กิน5'));
+        $this->assertSame(['ข้าว', '5'], $this->wordBreaker->breakIntoWords('ข้าว5'));
+    }
 }

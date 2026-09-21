@@ -51,7 +51,7 @@ class WordBreaker
             $selectedPath = $this->pathSelector->selectPath($possiblePathInfos);
             $path[] = $selectedPath;
             if ($selectedPath["type"] != "UNK")
-                $leftBoundary = $i;
+                $leftBoundary = $i + 1;
         }
         return $path;
     }

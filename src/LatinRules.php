@@ -94,7 +94,7 @@ class SingleSymbolAcceptor
 
     function transit($ch) 
     {
-        if ($this->strOffset == 0 && mb_strpos("()/-", $ch, 0, "UTF-8") >= 0) {
+        if ($this->strOffset == 0 && mb_strpos("()/-", $ch, 0, "UTF-8") !== false) {
             $this->isFinal = true;
             $this->strOffset++;
         } else {

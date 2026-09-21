@@ -5,7 +5,8 @@ PHP Thai word breaker
 
 This is a maintained fork of [veer66/PhlongTaIam](https://github.com/veer66/PhlongTaIam),
 which is no longer actively developed. Install and require this package
-as `kamthorn/phlongtaiam`.
+as `kamthorn/phlongtaiam`; [CHANGELOG.md](CHANGELOG.md) lists what to
+watch out for when moving over from the original.
 
 Requirement
 -----------

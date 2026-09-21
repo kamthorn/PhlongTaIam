@@ -218,9 +218,32 @@ counted list *without* `--exclude`: that flag removes the words the other
 dictionary already has, which are the commonest ones, leaving the weighting
 to treat them as rare. Let the two dictionaries overlap instead.
 
-A counted list of 12,000 words costs about 5MB of memory on top of the
-bundled one, and segmentation runs at the same speed either way. Nothing changes for
-a dictionary without counts - the original selection rules still apply.
+Nothing changes for a dictionary without counts - the original selection
+rules still apply.
+
+### What a bigger dictionary costs
+
+`tools/benchmark.php` reports load time, memory and throughput for whatever
+dictionaries you give it. Measured on synthetic Thai text, one run per
+dictionary because memory is only meaningful in a fresh process:
+
+| dictionary                 |  words | memory  | chars/sec |
+| -------------------------- | ------ | ------- | --------- |
+| `tdict-std.txt` base list  | 15,875 | 4.2 MB  | 470,000   |
+| `tdict.txt` default        | 25,905 | 8.3 MB  | 458,000   |
+| + 12,000 corpus words      | 31,473 | 9.2 MB  | 453,000   |
+| + those words counted      | 31,473 | 10.3 MB | 445,000   |
+| + 48,000 corpus words      | 64,359 | 26.1 MB | 432,000   |
+
+Memory tracks the number of *prefixes* rather than words - each word puts
+every one of its prefixes in the map, at roughly 110 bytes each - so it grows
+close to linearly. Speed barely moves: four times the dictionary costs about
+8% throughput, because a lookup is one hash probe whatever the size. Loading
+is the part that scales, from 10ms to 65ms, which under the Laravel singleton
+is paid once per worker.
+
+So the default's extra 10,000 words cost about 4MB and 3% throughput for
+0.12 F1. Going much further is worth measuring on your own text.
 
 A dictionary built this way is derived from that corpus, so check the
 corpus's licence before redistributing it. Research corpora frequently allow

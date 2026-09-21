@@ -28,7 +28,7 @@ if (isset($options['help']) || !isset($options['corpus'])) {
 
       --corpus=DIR    Corpus file or directory (required)
       --format=NAME   lst20 (default) or conll
-      --dict=FILE     Extra dictionary merged on top of data/tdict-std.txt,
+      --dict=FILE     Extra dictionary merged on top of data/tdict.txt,
                       repeatable as a comma-separated list
       --limit=N       Only read the first N files
       --top=N         How many frequently missed words to list (default 15)
@@ -42,7 +42,7 @@ $format = (string) ($options['format'] ?? CorpusReader::FORMAT_LST20);
 $limit = (int) ($options['limit'] ?? 0);
 $top = (int) ($options['top'] ?? 15);
 
-$dictionaries = [__DIR__ . '/../data/tdict-std.txt'];
+$dictionaries = [__DIR__ . '/../data/tdict.txt'];
 if (!empty($options['dict'])) {
     foreach (explode(',', (string) $options['dict']) as $path) {
         $path = trim($path);

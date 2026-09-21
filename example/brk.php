@@ -6,7 +6,7 @@
 require_once "../src/autoload.php";
 
 use PhlongTaIam\WordBreaker as WordBreaker;
-$wordBreaker = new WordBreaker("../data/tdict-std.txt");
+$wordBreaker = new WordBreaker("../data/tdict.txt");
 foreach($wordBreaker->breakIntoWords("ฉัน eat ข้าวชิมิ") as $w) {
 	print "<li>$w</li>\n";
 }

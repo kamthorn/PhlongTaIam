@@ -25,7 +25,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use PhlongTaIam\WordBreaker;
 
-$wordBreaker = new WordBreaker(__DIR__ . '/vendor/kamthorn/phlongtaiam/data/tdict-std.txt');
+$wordBreaker = new WordBreaker(__DIR__ . '/vendor/kamthorn/phlongtaiam/data/tdict.txt');
 
 foreach ($wordBreaker->breakIntoWords('ฉันกินข้าวชิมิ') as $word) {
     echo $word . "\n";
@@ -47,7 +47,7 @@ dictionary is a plain UTF-8 file with one word per line, in any order:
 
 ```php
 $wordBreaker = new WordBreaker([
-    __DIR__ . '/vendor/kamthorn/phlongtaiam/data/tdict-std.txt',
+    __DIR__ . '/vendor/kamthorn/phlongtaiam/data/tdict.txt',
     __DIR__ . '/dictionaries/my-products.txt',
 ]);
 ```
@@ -65,7 +65,7 @@ Laravel
 -------
 The package ships a service provider that Laravel auto-discovers - no
 manual registration needed after `composer require`. It binds
-`PhlongTaIam\WordBreaker` as a singleton, so the dictionary (~16,000
+`PhlongTaIam\WordBreaker` as a singleton, so the dictionary (~26,000
 entries) is parsed once per application boot rather than once per
 resolution.
 
@@ -156,13 +156,17 @@ Accuracy
 How well this segments your text depends almost entirely on whether the
 dictionary knows the words in it. Measured against the LST20 corpus, words
 the dictionary knows are segmented correctly 99% of the time, while **98% of
-all errors are words it has never seen**. The bundled `tdict-std.txt` holds
-base words only - it has `โรง` and `เรียน`, but not `โรงเรียน`.
+all errors are words it has never seen**.
 
-So the way to improve accuracy is to add the vocabulary of the text you
-actually process. Two tools in the repository (not shipped in the package)
-help with that. They read an annotated corpus in LST20 or CoNLL format; no
-corpus is included, point them at your own copy.
+`data/tdict.txt` is the bundled default and holds every LibThai word list,
+including compounds. `data/tdict-std.txt` is also shipped: it is the base
+list on its own, which scored 0.74 against LST20's test split where the full
+one scores 0.86, and it stays for anyone who was already pointing at it.
+
+The remaining gains come from adding the vocabulary of the text you actually
+process. Two tools in the repository (not shipped in the package) help with
+that. They read an annotated corpus in LST20 or CoNLL format; no corpus is
+included, point them at your own copy.
 
 ```bash
 # What is my accuracy right now?
@@ -170,12 +174,12 @@ php tools/evaluate.php --corpus=/path/to/LST20_Corpus/eval
 
 # Build a dictionary from text of the same kind, then measure again
 php tools/build-dictionary.php --corpus=/path/to/LST20_Corpus/train \
-    --min-freq=5 --exclude=data/tdict-std.txt --out=my-words.txt
+    --min-freq=5 --exclude=data/tdict.txt --out=my-words.txt
 php tools/evaluate.php --corpus=/path/to/LST20_Corpus/eval --dict=my-words.txt
 ```
 
-In that example the 8,000 words this adds take word-level F1 from **0.67 to
-0.90**. Load the result alongside the standard list:
+In that example the words this adds take word-level F1 on LST20's test split
+from **0.865 to 0.916**. Load the result alongside the bundled list:
 
 ```php
 $wordBreaker = new WordBreaker([$standardList, 'my-words.txt']);
@@ -204,17 +208,18 @@ Treebank, with a dictionary built from LST20's train split:
 
 | dictionary            | LST20 test | Blackboard |
 | --------------------- | ---------- | ---------- |
-| bundled list only     | 0.743      | 0.694      |
-| + words, no counts    | 0.922      | 0.947      |
-| + words with counts   | **0.929**  | **0.952**  |
+| base list only        | 0.743      | 0.724      |
+| bundled `tdict.txt`   | 0.865      | 0.849      |
+| + corpus words        | 0.916      | 0.939      |
+| + those words counted | **0.928**  | **0.949**  |
 
 Counts help at every vocabulary size, so use them if you have them. Build the
 counted list *without* `--exclude`: that flag removes the words the other
 dictionary already has, which are the commonest ones, leaving the weighting
 to treat them as rare. Let the two dictionaries overlap instead.
 
-A counted list of 12,000 words costs about 5MB of memory over the bundled
-one, and segmentation runs at the same speed either way. Nothing changes for
+A counted list of 12,000 words costs about 5MB of memory on top of the
+bundled one, and segmentation runs at the same speed either way. Nothing changes for
 a dictionary without counts - the original selection rules still apply.
 
 A dictionary built this way is derived from that corpus, so check the
@@ -223,7 +228,16 @@ use but not redistribution.
 
 Word list
 ---------
-Word lists were taken from [LibThai](http://linux.thai.net/projects/libthai)
+`data/tdict.txt` is every word list [LibThai](https://github.com/tlwg/libthai)
+compiles into its own word breaker, taken from v0.1.30 and combined the same
+way its build does:
+
+```bash
+cat libthai/data/tdict-*.txt path/to/tdict-std.txt | LC_ALL=C sort -u > data/tdict.txt
+```
+
+LibThai is licensed under the LGPL v2.1, the same licence as this package.
+`data/tdict-std.txt` is the base list alone, kept from earlier releases.
 
 Testing
 -------

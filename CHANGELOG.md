@@ -7,15 +7,27 @@ All notable changes to this package. This project follows
 Unreleased
 ----------
 
+### Changed
+
+* **The bundled dictionary now holds every LibThai word list**, as
+  `data/tdict.txt`, and is what the Laravel binding, the examples and the
+  README use. It has ~26,000 words against the base list's ~16,000, including
+  the compounds that were missing: `โรงเรียน`, `โครงการ`, `รถยนต์`. Word-level
+  F1 goes from 0.743 to 0.865 on LST20's test split, and 0.724 to 0.849 on the
+  Blackboard Treebank. **Segmentation output changes accordingly.**
+  `data/tdict-std.txt` still ships unchanged, so pointing at it explicitly
+  keeps the old behaviour. LibThai is LGPL v2.1, the same licence as this
+  package.
+
 ### Added
 
 * Dictionaries can carry corpus counts as `word<TAB>count`. When they do, the
   segmenter scores candidate readings by how likely their words are instead of
   by fixed counting rules, which is what lets a large vocabulary help rather
-  than hurt. Measured against LST20's test split with a dictionary built from
-  its train split, F1 goes from 0.922 without counts to 0.929 with them, and
-  from 0.947 to 0.952 on the Blackboard Treebank. A dictionary without counts
-  behaves exactly as before.
+  than hurt. Measured on top of the bundled dictionary, with an extra list
+  built from LST20's train split, F1 on LST20's test split goes from 0.916
+  without counts to 0.928 with them, and from 0.939 to 0.949 on the Blackboard
+  Treebank. A dictionary without counts behaves exactly as before.
 * `tools/evaluate.php` and `tools/build-dictionary.php`: measure segmentation
   accuracy against an annotated corpus, and turn one into a dictionary.
   `--with-frequency` writes the counts above. No corpus ships with this

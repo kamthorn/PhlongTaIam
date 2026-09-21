@@ -14,7 +14,7 @@ declare(strict_types=1);
  * derived from it - check that corpus's licence before redistributing.
  *
  *   php tools/build-dictionary.php --corpus=/path/to/LST20_Corpus/train \
- *       --min-freq=5 --exclude=data/tdict-std.txt --out=my-words.txt
+ *       --min-freq=5 --exclude=data/tdict.txt --out=my-words.txt
  */
 
 require __DIR__ . '/lib/CorpusReader.php';

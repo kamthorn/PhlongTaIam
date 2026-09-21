@@ -14,7 +14,7 @@ use PhlongTaIam\WordBreaker as WordBreaker;
 
 if (isset($_POST["txt"])) {
     echo "Text:".htmlspecialchars($_POST["txt"], ENT_QUOTES, "UTF-8");
-    $wordBreaker = new WordBreaker("../data/tdict-std.txt");
+    $wordBreaker = new WordBreaker("../data/tdict.txt");
 ?>
 <ul>
 <?php

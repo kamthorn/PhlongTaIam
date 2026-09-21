@@ -9,7 +9,7 @@ return [
     |
     | Path to the newline-separated, UTF-8, lexicographically sorted
     | dictionary file used by PhlongTaIam\WordBreaker. Leave as null to use
-    | the dictionary bundled with the package (data/tdict-std.txt).
+    | the dictionary bundled with the package (data/tdict.txt).
     |
     */
 

@@ -16,7 +16,7 @@ class WordBreaker
     /**
      * @param string|string[] $dictPath Path to a UTF-8 dictionary file, one
      *                        word per line, in any order - e.g. the bundled
-     *                        data/tdict-std.txt. Pass several paths to merge
+     *                        data/tdict.txt. Pass several paths to merge
      *                        them, for instance the bundled list plus your
      *                        own terms.
      */

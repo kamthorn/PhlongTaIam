@@ -1,6 +1,7 @@
 <?php
 namespace PhlongTaIam\Tests\Laravel;
 
+use Illuminate\Support\Facades\Blade;
 use Orchestra\Testbench\TestCase;
 use PhlongTaIam\Laravel\PhlongTaIamServiceProvider;
 use PhlongTaIam\WordBreaker;
@@ -44,5 +45,19 @@ final class PhlongTaIamServiceProviderTest extends TestCase
         $this->artisan('vendor:publish', ['--tag' => 'phlongtaiam-config'])->run();
 
         $this->assertFileExists($this->app->configPath('phlongtaiam.php'));
+    }
+
+    public function testThaiWordWrapBladeDirectiveInsertsZeroWidthSpacesBetweenWords(): void
+    {
+        $rendered = Blade::render('@thaiwordwrap($text)', ['text' => 'ฉันกิน']);
+
+        $this->assertSame("ฉัน\u{200B}กิน", $rendered);
+    }
+
+    public function testThaiWordWrapBladeDirectiveEscapesHtml(): void
+    {
+        $rendered = Blade::render('@thaiwordwrap($text)', ['text' => '<script>']);
+
+        $this->assertSame("&lt;\u{200B}script\u{200B}&gt;", $rendered);
     }
 }

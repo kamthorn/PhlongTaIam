@@ -7,9 +7,17 @@ require_once "Acceptors.php";
 require_once "PathSelector.php";
 require_once "LatinRules.php";
 
+/**
+ * Thai word segmenter driven by a plain-text, newline-separated dictionary.
+ */
 class WordBreaker
 {
-    function __construct($dictPath) 
+    /**
+     * @param string $dictPath Path to a UTF-8, newline-separated, lexicographically
+     *                         sorted dictionary file (one word per line), e.g. the
+     *                         bundled data/tdict-std.txt.
+     */
+    function __construct($dictPath)
     {
         mb_internal_encoding("UTF-8");
         $this->dict = new Dict();
@@ -88,14 +96,24 @@ class WordBreaker
         return array_reverse($ranges);
     }
 
-    function breakIntoRanges($text) 
+    /**
+     * @param  string $text UTF-8 text to segment.
+     * @return array<int, array{s: int, e: int}> Character-offset ranges (start
+     *         inclusive, end exclusive) of each token, in order.
+     */
+    function breakIntoRanges($text)
     {
         $path = $this->buildPath($text);
         $ranges = $this->pathToRanges($path);
         return $ranges;
     }
 
-    function breakIntoWords($text) 
+    /**
+     * @param  string $text UTF-8 text to segment.
+     * @return string[] The tokens (words, whitespace runs, and unknown
+     *         character runs) found in $text, in order.
+     */
+    function breakIntoWords($text)
     {
         $ranges = $this->breakIntoRanges($text);
         $textList = $this->rangesToTextList($text, $ranges);

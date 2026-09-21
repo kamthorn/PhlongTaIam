@@ -19,16 +19,28 @@ class Dict implements RuleInterface
     /** @var array<string, bool> Prefix => whether that prefix is itself a word. */
     public array $prefixes = [];
 
+    /**
+     * Replace the dictionary with the words in $dictPath.
+     */
     public function loadDict(string $dictPath): void
+    {
+        $this->prefixes = [];
+        $this->addDict($dictPath);
+    }
+
+    /**
+     * Merge the words in $dictPath into the dictionary, keeping what is
+     * already there - e.g. a project's own terms on top of the bundled list.
+     */
+    public function addDict(string $dictPath): void
     {
         $contents = @file_get_contents($dictPath);
         if ($contents === false) {
             throw new RuntimeException("Cannot read dictionary file: $dictPath");
         }
 
-        $this->prefixes = [];
         foreach (explode("\n", $contents) as $word) {
-            $this->addWord($word);
+            $this->addWord(trim($word, "\r"));
         }
     }
 

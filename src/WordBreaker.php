@@ -14,14 +14,18 @@ class WordBreaker
     public PathSelector $pathSelector;
 
     /**
-     * @param string $dictPath Path to a UTF-8 dictionary file, one word per
-     *                         line, in any order - e.g. the bundled
-     *                         data/tdict-std.txt.
+     * @param string|string[] $dictPath Path to a UTF-8 dictionary file, one
+     *                        word per line, in any order - e.g. the bundled
+     *                        data/tdict-std.txt. Pass several paths to merge
+     *                        them, for instance the bundled list plus your
+     *                        own terms.
      */
-    public function __construct(string $dictPath)
+    public function __construct(string|array $dictPath)
     {
         $this->dict = new Dict();
-        $this->dict->loadDict($dictPath);
+        foreach ((array) $dictPath as $path) {
+            $this->dict->addDict($path);
+        }
         $this->acceptors = new Acceptors();
         $this->acceptors->creators[] = $this->dict;
         $this->acceptors->creators[] = new WordRule();

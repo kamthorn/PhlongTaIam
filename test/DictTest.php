@@ -91,6 +91,32 @@ final class DictTest extends TestCase
         $this->assertTrue($acceptor->isFinal);
     }
 
+    public function testAddDictMergesInsteadOfReplacing(): void
+    {
+        $dict = $this->loadFixtureDict();
+        $dict->addDict(__DIR__ . '/fixtures/custom-dict.txt');
+
+        $words = $this->wordsOf($dict);
+        $this->assertContains('กิน', $words, 'words from the first dictionary survive');
+        $this->assertContains('ขนมครกโบราณ', $words, 'words from the merged dictionary are added');
+    }
+
+    public function testLoadDictReplacesWhatWasThereBefore(): void
+    {
+        $dict = $this->loadFixtureDict();
+        $dict->loadDict(__DIR__ . '/fixtures/custom-dict.txt');
+
+        $this->assertSame(['ขนมครกโบราณ', 'ร้านลุงหนวด'], $this->wordsOf($dict));
+    }
+
+    public function testCarriageReturnsAreStrippedFromCrlfDictionaries(): void
+    {
+        $dict = new Dict();
+        $dict->loadDict(__DIR__ . '/fixtures/dict-crlf.txt');
+
+        $this->assertSame(['กิน', 'ข้าว'], $this->wordsOf($dict));
+    }
+
     public function testAnUnsortedDictionaryStillMatches(): void
     {
         $dict = new Dict();

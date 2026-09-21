@@ -40,6 +40,16 @@ final class PhlongTaIamServiceProviderTest extends TestCase
         $this->assertSame(['xyz'], $wordBreaker->breakIntoWords('xyz'));
     }
 
+    public function testAdditionalDictionariesAreMergedOntoTheMainOne(): void
+    {
+        config(['phlongtaiam.additional_dictionaries' => [__DIR__ . '/../fixtures/custom-dict.txt']]);
+
+        $wordBreaker = $this->app->make(WordBreaker::class);
+
+        $this->assertSame(['ขนมครกโบราณ'], $wordBreaker->breakIntoWords('ขนมครกโบราณ'));
+        $this->assertSame(['ฉัน', 'กิน'], $wordBreaker->breakIntoWords('ฉันกิน'));
+    }
+
     public function testConfigCanBePublished(): void
     {
         $this->artisan('vendor:publish', ['--tag' => 'phlongtaiam-config'])->run();

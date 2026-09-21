@@ -14,8 +14,9 @@ class PhlongTaIamServiceProvider extends ServiceProvider
         $this->app->singleton(WordBreaker::class, function ($app) {
             $path = $app['config']->get('phlongtaiam.dictionary_path')
                 ?: __DIR__ . '/../../data/tdict-std.txt';
+            $additional = $app['config']->get('phlongtaiam.additional_dictionaries') ?: [];
 
-            return new WordBreaker($path);
+            return new WordBreaker(array_merge([$path], (array) $additional));
         });
 
         $this->app->alias(WordBreaker::class, 'phlongtaiam');

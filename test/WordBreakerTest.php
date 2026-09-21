@@ -50,6 +50,20 @@ final class WordBreakerTest extends TestCase
         $this->assertSame(['ข้าว', '5'], $this->wordBreaker->breakIntoWords('ข้าว5'));
     }
 
+    public function testSeveralDictionariesCanBeMerged(): void
+    {
+        $withoutCustom = $this->wordBreaker->breakIntoWords('ขนมครกโบราณ');
+        $this->assertNotSame(['ขนมครกโบราณ'], $withoutCustom, 'not a word in the standard dictionary');
+
+        $merged = new WordBreaker([
+            __DIR__ . '/../data/tdict-std.txt',
+            __DIR__ . '/fixtures/custom-dict.txt',
+        ]);
+
+        $this->assertSame(['ขนมครกโบราณ'], $merged->breakIntoWords('ขนมครกโบราณ'));
+        $this->assertSame(['ฉัน', 'กิน'], $merged->breakIntoWords('ฉันกิน'), 'the standard dictionary still applies');
+    }
+
     public function testInsertWordBreaksJoinsTokensWithAZeroWidthSpaceByDefault(): void
     {
         $this->assertSame(

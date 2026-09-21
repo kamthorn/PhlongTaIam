@@ -40,6 +40,17 @@ character runs) found in the text, in order:
 * ชิ
 * มิ
 
+To teach it words the standard list does not know - product names, place
+names, jargon - pass several dictionary files and they are merged. A
+dictionary is a plain UTF-8 file with one word per line, in any order:
+
+```php
+$wordBreaker = new WordBreaker([
+    __DIR__ . '/vendor/kamthorn/phlongtaiam/data/tdict-std.txt',
+    __DIR__ . '/dictionaries/my-products.txt',
+]);
+```
+
 If you need character offsets instead of text, use `breakIntoRanges()`,
 which returns `[['s' => start, 'e' => end], ...]` (start inclusive, end
 exclusive, in UTF-8 character counts).
@@ -80,11 +91,23 @@ use PhlongTaIam\Laravel\Facades\PhlongTaIam;
 $tokens = PhlongTaIam::breakIntoWords('ฉันกินข้าว');
 ```
 
-To use a different dictionary, publish the config and set
-`dictionary_path` (or the `PHLONGTAIAM_DICTIONARY_PATH` env var):
+To use a different dictionary, or to add your own words on top of the
+standard list, publish the config:
 
 ```bash
 php artisan vendor:publish --tag=phlongtaiam-config
+```
+
+```php
+// config/phlongtaiam.php
+return [
+    // null uses the dictionary bundled with the package
+    'dictionary_path' => env('PHLONGTAIAM_DICTIONARY_PATH'),
+
+    'additional_dictionaries' => [
+        resource_path('dictionaries/products.txt'),
+    ],
+];
 ```
 
 ### PDF export: wrapping unspaced Thai text

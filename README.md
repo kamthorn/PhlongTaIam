@@ -98,6 +98,10 @@ composer install
 vendor/bin/phpunit
 ```
 
+License
+-------
+GNU Lesser General Public License v2.1 (LGPL-2.1-only) - see [LICENSE](LICENSE).
+
 Demo
 ----
 A local, standalone HTML demo is included at `example/demo.php` (see Usage

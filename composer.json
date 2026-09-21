@@ -2,7 +2,7 @@
     "name": "kamthorn/phlongtaiam",
     "type": "library",
     "description": "Thai word breaker for PHP",
-    "license": "MIT",
+    "license": "LGPL-2.1-only",
     "require": {
         "php": ">=8.1"
     },

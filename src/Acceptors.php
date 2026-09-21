@@ -1,54 +1,58 @@
 <?php
+declare(strict_types=1);
+
 namespace PhlongTaIam;
+
 class Acceptors
 {
-	public $creators;
+    /** @var object[] Rule/dictionary objects that can start a new acceptor. */
+    public array $creators = [];
 
-	function __construct() 
-	{
-		$this->creators = array();
-		$this->current = array();
-		$this->tag = array();
-	}
+    /** @var object[] Acceptors still alive at the current position. */
+    public array $current = [];
 
-	function reset() {
-		$this->current = array();
-	}
+    /** @var array<string, object> Tags claimed at the current position. */
+    public array $tag = [];
 
-	function transit($ch) {
-		foreach ($this->creators as $creator) {
-			$acceptor = $creator->createAcceptor($this->tag);
-			if (!is_null($acceptor))
-				$this->current[] = $acceptor;
-		}
+    public function reset(): void
+    {
+        $this->current = [];
+    }
 
+    public function transit(string $ch): void
+    {
+        foreach ($this->creators as $creator) {
+            $acceptor = $creator->createAcceptor($this->tag);
+            if (!is_null($acceptor))
+                $this->current[] = $acceptor;
+        }
 
-		$_current = array();
-		$this->tag = array();
+        $_current = [];
+        $this->tag = [];
 
-		for ($i = 0; $i < sizeof($this->current); $i++) {
-			$_acceptor = $this->current[$i];
-			$acceptor = $_acceptor->transit($ch);
+        for ($i = 0; $i < count($this->current); $i++) {
+            $_acceptor = $this->current[$i];
+            $acceptor = $_acceptor->transit($ch);
 
-			if (!$acceptor->isError) {
-				$_current[] = $acceptor;
-				if (!array_key_exists($acceptor->tag, $this->tag))
-					$this->tag[$acceptor->tag] = array();
-				$this->tag[$acceptor->tag] = $acceptor;
-			}
-		}
-		$this->current = $_current;
-	}
+            if (!$acceptor->isError) {
+                $_current[] = $acceptor;
+                $this->tag[$acceptor->tag] = $acceptor;
+            }
+        }
+        $this->current = $_current;
+    }
 
-	function getFinalAcceptors() 
-	{
-		$finalAcceptors = array();
-		foreach($this->current as $acceptor) {	
-			if ($acceptor->isFinal) {
-				$finalAcceptors[] = $acceptor;
-			}
-		}
-		return $finalAcceptors;
-	}
+    /**
+     * @return object[]
+     */
+    public function getFinalAcceptors(): array
+    {
+        $finalAcceptors = [];
+        foreach ($this->current as $acceptor) {
+            if ($acceptor->isFinal) {
+                $finalAcceptors[] = $acceptor;
+            }
+        }
+        return $finalAcceptors;
+    }
 }
-?>

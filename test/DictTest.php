@@ -3,6 +3,7 @@ namespace PhlongTaIam\Tests;
 
 use PHPUnit\Framework\TestCase;
 use PhlongTaIam\Dict;
+use RuntimeException;
 
 final class DictTest extends TestCase
 {
@@ -47,6 +48,14 @@ final class DictTest extends TestCase
         $acceptor->transit('ซ');
 
         $this->assertTrue($acceptor->isError);
+    }
+
+    public function testLoadDictRejectsAnUnreadableFile(): void
+    {
+        $dict = new Dict();
+
+        $this->expectException(RuntimeException::class);
+        $dict->loadDict(__DIR__ . '/fixtures/does-not-exist.txt');
     }
 
     public function testLoadDictReindexesAfterDroppingBlankLines(): void

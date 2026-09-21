@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 namespace PhlongTaIam;
 
 require_once "Dict.php";
@@ -12,14 +14,18 @@ require_once "LatinRules.php";
  */
 class WordBreaker
 {
+    public Dict $dict;
+    public Acceptors $acceptors;
+    public PathInfoBuilder $pathInfoBuilder;
+    public PathSelector $pathSelector;
+
     /**
      * @param string $dictPath Path to a UTF-8, newline-separated, lexicographically
      *                         sorted dictionary file (one word per line), e.g. the
      *                         bundled data/tdict-std.txt.
      */
-    function __construct($dictPath)
+    public function __construct(string $dictPath)
     {
-        mb_internal_encoding("UTF-8");
         $this->dict = new Dict();
         $this->dict->loadDict($dictPath);
         $this->acceptors = new Acceptors();
@@ -31,25 +37,29 @@ class WordBreaker
         $this->pathSelector = new PathSelector();
     }
 
-    function createPath()
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function createPath(): array
     {
-        return array(array("p" => NULL,
-                           "w" => 0,
-                           "unk" => 0,
-                           "type" => "INIT",
-                           "mw" => 0));
+        return [["p" => null,
+                 "w" => 0,
+                 "unk" => 0,
+                 "type" => "INIT",
+                 "mw" => 0]];
     }
 
     /**
-     * @param string[] $chars $text split into individual UTF-8 characters,
-     *                        e.g. via mb_str_split(). Taking the array
-     *                        instead of the source string avoids calling
-     *                        mb_substr($text, $i, 1) once per character -
-     *                        mb_substr re-scans from the start of the
-     *                        string on every call, which made this
-     *                        effectively O(n^2) on long input.
+     * @param  string[] $chars $text split into individual UTF-8 characters,
+     *                         e.g. via mb_str_split(). Taking the array
+     *                         instead of the source string avoids calling
+     *                         mb_substr($text, $i, 1) once per character -
+     *                         mb_substr re-scans from the start of the
+     *                         string on every call, which made this
+     *                         effectively O(n^2) on long input.
+     * @return array<int, array<string, mixed>>
      */
-    function buildPath($chars)
+    public function buildPath(array $chars): array
     {
         $leftBoundary = 0;
         $path = $this->createPath();
@@ -74,28 +84,34 @@ class WordBreaker
     }
 
     /**
-     * @param string[] $chars See buildPath(). Slicing the pre-split array
-     *                        instead of calling mb_substr($text, ...) once
-     *                        per word avoids the same O(n^2) re-scan for
-     *                        texts with many short tokens.
+     * @param  string[] $chars See buildPath(). Slicing the pre-split array
+     *                         instead of calling mb_substr($text, ...) once
+     *                         per word avoids the same O(n^2) re-scan for
+     *                         texts with many short tokens.
+     * @param  array<int, array{s: int, e: int}> $ranges
+     * @return string[]
      */
-    function rangesToTextList($chars, $ranges)
+    public function rangesToTextList(array $chars, array $ranges): array
     {
-        $textList = array();
-        foreach($ranges as $r) {
+        $textList = [];
+        foreach ($ranges as $r) {
             $textList[] = implode('', array_slice($chars, $r["s"], $r["e"] - $r["s"]));
         }
         return $textList;
     }
 
-    function pathToRanges($path)
+    /**
+     * @param  array<int, array<string, mixed>> $path
+     * @return array<int, array{s: int, e: int}>
+     */
+    public function pathToRanges(array $path): array
     {
-        $e = sizeof($path) - 1;
-        $ranges = array();
+        $e = count($path) - 1;
+        $ranges = [];
 
         while ($e > 0) {
             $s = $path[$e]["p"];
-            $ranges[] = array("s" => $s, "e" => $e);
+            $ranges[] = ["s" => $s, "e" => $e];
             $e = $s;
         }
 
@@ -106,7 +122,7 @@ class WordBreaker
      * @param  string[] $chars See buildPath().
      * @return array<int, array{s: int, e: int}>
      */
-    private function charsToRanges($chars)
+    private function charsToRanges(array $chars): array
     {
         return $this->pathToRanges($this->buildPath($chars));
     }
@@ -116,7 +132,7 @@ class WordBreaker
      * @return array<int, array{s: int, e: int}> Character-offset ranges (start
      *         inclusive, end exclusive) of each token, in order.
      */
-    function breakIntoRanges($text)
+    public function breakIntoRanges(string $text): array
     {
         return $this->charsToRanges(mb_str_split($text, 1, "UTF-8"));
     }
@@ -126,7 +142,7 @@ class WordBreaker
      * @return string[] The tokens (words, whitespace runs, and unknown
      *         character runs) found in $text, in order.
      */
-    function breakIntoWords($text)
+    public function breakIntoWords(string $text): array
     {
         $chars = mb_str_split($text, 1, "UTF-8");
         return $this->rangesToTextList($chars, $this->charsToRanges($chars));
@@ -147,9 +163,8 @@ class WordBreaker
      *                           U+200B (zero-width space).
      * @return string $text with $breakChar inserted between tokens.
      */
-    function insertWordBreaks($text, $breakChar = "\u{200B}")
+    public function insertWordBreaks(string $text, string $breakChar = "\u{200B}"): string
     {
         return implode($breakChar, $this->breakIntoWords($text));
     }
 }
-?>

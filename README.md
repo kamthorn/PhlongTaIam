@@ -87,6 +87,46 @@ To use a different dictionary, publish the config and set
 php artisan vendor:publish --tag=phlongtaiam-config
 ```
 
+### PDF export: wrapping unspaced Thai text
+
+Thai script has no spaces between words. HTML-to-PDF renderers (dompdf,
+mPDF, wkhtmltopdf/Snappy, ...) rely on spaces to know where a line can
+break, so a long run of Thai text is treated as a single unbreakable
+"word" and either overflows its container or gets cut off instead of
+wrapping.
+
+`WordBreaker::insertWordBreaks()` (exposed in Blade as `@thaiwordwrap`)
+fixes this by segmenting the text and re-joining it with an invisible
+zero-width space (U+200B) between words - the text reads exactly the
+same, but the renderer now has real line-break opportunities.
+
+Using [barryvdh/laravel-dompdf](https://github.com/barryvdh/laravel-dompdf)
+as an example:
+
+```php
+// app/Http/Controllers/InvoiceController.php
+use Barryvdh\DomPDF\Facade\Pdf;
+
+public function download(Invoice $invoice)
+{
+    return Pdf::loadView('invoices.pdf', ['invoice' => $invoice])
+        ->download("invoice-{$invoice->id}.pdf");
+}
+```
+
+```blade
+{{-- resources/views/invoices/pdf.blade.php --}}
+<style>
+    /* Belt-and-suspenders: let the renderer break even without U+200B. */
+    .description { overflow-wrap: break-word; }
+</style>
+
+<p class="description">@thaiwordwrap($invoice->description)</p>
+```
+
+`@thaiwordwrap` escapes the value for you (like `{{ }}` does), so pass
+the raw, unescaped text - do not combine it with `{{ }}` or `e()`.
+
 Word list
 ---------
 Word lists were taken from [LibThai](http://linux.thai.net/projects/libthai)

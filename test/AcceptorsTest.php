@@ -10,11 +10,13 @@ final class AcceptorsTest extends TestCase
 {
     public function testWordRuleAcceptsAsciiLetters(): void
     {
-        $acceptor = new WordRuleAcceptor();
-        $acceptor->transit('a');
+        foreach (['a', 'z', 'A', 'Z', 'm', 'M'] as $ch) {
+            $acceptor = new WordRuleAcceptor();
+            $acceptor->transit($ch);
 
-        $this->assertFalse($acceptor->isError);
-        $this->assertTrue($acceptor->isFinal);
+            $this->assertFalse($acceptor->isError, "Expected '$ch' to be accepted as a letter");
+            $this->assertTrue($acceptor->isFinal);
+        }
     }
 
     public function testWordRuleRejectsNonLetters(): void
@@ -23,6 +25,18 @@ final class AcceptorsTest extends TestCase
         $acceptor->transit('1');
 
         $this->assertTrue($acceptor->isError);
+    }
+
+    public function testWordRuleRejectsThePunctuationBetweenTheAsciiLetterRanges(): void
+    {
+        // '[' '\' ']' '^' '_' '`' sit between 'Z' and 'a' in ASCII, so a
+        // "A".."z" test would wrongly treat them as letters.
+        foreach (['[', '\\', ']', '^', '_', '`'] as $ch) {
+            $acceptor = new WordRuleAcceptor();
+            $acceptor->transit($ch);
+
+            $this->assertTrue($acceptor->isError, "Expected '$ch' to be rejected: it is not a letter");
+        }
     }
 
     public function testSpaceRuleAcceptsWhitespaceCharacters(): void

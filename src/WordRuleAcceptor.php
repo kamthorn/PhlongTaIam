@@ -10,7 +10,7 @@ class WordRuleAcceptor extends AbstractAcceptor
 
     public function transit(string $ch): static
     {
-        if (($ch >= "a" && $ch <= "z") || ($ch >= "A" && $ch <= "z")) {
+        if (($ch >= "a" && $ch <= "z") || ($ch >= "A" && $ch <= "Z")) {
             $this->isFinal = true;
             $this->strOffset++;
         } else {

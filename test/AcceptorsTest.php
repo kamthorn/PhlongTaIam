@@ -39,6 +39,19 @@ final class AcceptorsTest extends TestCase
         }
     }
 
+    public function testResetClearsTheTagsClaimedSoFar(): void
+    {
+        $acceptors = new \PhlongTaIam\Acceptors();
+        $acceptors->creators[] = new \PhlongTaIam\WordRule();
+        $acceptors->transit('a');
+        $this->assertNotSame([], $acceptors->tag);
+
+        $acceptors->reset();
+
+        $this->assertSame([], $acceptors->tag, 'a stale tag blocks the rule from starting on the next text');
+        $this->assertSame([], $acceptors->current);
+    }
+
     public function testSpaceRuleAcceptsWhitespaceCharacters(): void
     {
         foreach ([' ', "\t", "\r", "\n"] as $ch) {

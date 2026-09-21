@@ -50,6 +50,26 @@ final class WordBreakerTest extends TestCase
         $this->assertSame(['ข้าว', '5'], $this->wordBreaker->breakIntoWords('ข้าว5'));
     }
 
+    public function testSegmentingIsNotAffectedByEarlierCalls(): void
+    {
+        // The rule tags left over from the previous text used to suppress the
+        // acceptor that should start at position 0, so the same input came
+        // out differently depending on what had been segmented before - and
+        // the Laravel binding shares one instance across a whole worker.
+        $this->wordBreaker->breakIntoWords('cat');
+
+        $this->assertSame(['eat'], $this->wordBreaker->breakIntoWords('eat'));
+        $this->assertSame(['ฉัน', 'กิน'], $this->wordBreaker->breakIntoWords('ฉันกิน'));
+    }
+
+    public function testRepeatedCallsWithTheSameInputAgree(): void
+    {
+        $first = $this->wordBreaker->breakIntoWords('Hello ฉันกินข้าว');
+        $second = $this->wordBreaker->breakIntoWords('Hello ฉันกินข้าว');
+
+        $this->assertSame($first, $second);
+    }
+
     public function testSeveralDictionariesCanBeMerged(): void
     {
         $withoutCustom = $this->wordBreaker->breakIntoWords('ขนมครกโบราณ');

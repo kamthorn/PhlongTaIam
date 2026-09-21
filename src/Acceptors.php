@@ -17,6 +17,7 @@ class Acceptors
     public function reset(): void
     {
         $this->current = [];
+        $this->tag = [];
     }
 
     public function transit(string $ch): void

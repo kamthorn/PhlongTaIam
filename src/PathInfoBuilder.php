@@ -33,6 +33,10 @@ class PathInfoBuilder {
 		$_info = $path[$leftBoundary];
 		$ch = $chars[$i];
 		mb_regex_encoding("UTF-8");
+		// U+0E48..U+0E4E are Thai tone marks and diacritics. They are written
+		// as escapes rather than literally because they are combining marks:
+		// on their own they have no base character to sit on, so the literal
+		// form renders as unreadable floating glyphs in most editors.
 		if (mb_ereg("[่-๎]", $ch)) {
 			if ($leftBoundary != 0) {
 				$pathAtLeftBoundary = $path[$leftBoundary];

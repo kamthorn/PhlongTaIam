@@ -65,4 +65,30 @@ final class WordBreakerTest extends TestCase
             $this->wordBreaker->insertWordBreaks('ฉันกิน', '|')
         );
     }
+
+    public function testALongTextBreaksInWellUnderASecond(): void
+    {
+        // buildPath() and rangesToTextList() used to call mb_substr() on the
+        // full input string once per character and once per word
+        // respectively. mb_substr re-scans from the start of the string on
+        // every call, so both were effectively O(n^2): this ~22,000
+        // character text used to take over a second.
+        $chunk = 'การให้คำแนะนำในเรื่องของจุดแข็ง จุดอ่อน และโอกาสในการปรับปรุงให้ดีขึ้น ';
+        $letters = range('A', 'Z');
+        $text = '';
+        for ($i = 0; $i < 300; $i++) {
+            $text .= str_repeat($letters[$i % 26], 3).$chunk;
+        }
+        $this->assertGreaterThan(20000, mb_strlen($text));
+
+        $start = microtime(true);
+        $this->wordBreaker->breakIntoWords($text);
+        $elapsed = microtime(true) - $start;
+
+        $this->assertLessThan(
+            1.0,
+            $elapsed,
+            "Word-breaking a ".mb_strlen($text)."-character text took {$elapsed}s - an O(n^2) mb_substr loop may be back."
+        );
+    }
 }

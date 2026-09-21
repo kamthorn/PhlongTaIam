@@ -31,7 +31,7 @@ class WordBreaker
         $this->pathSelector = new PathSelector();
     }
 
-    function createPath() 
+    function createPath()
     {
         return array(array("p" => NULL,
                            "w" => 0,
@@ -40,22 +40,31 @@ class WordBreaker
                            "mw" => 0));
     }
 
-    function buildPath($text) 
+    /**
+     * @param string[] $chars $text split into individual UTF-8 characters,
+     *                        e.g. via mb_str_split(). Taking the array
+     *                        instead of the source string avoids calling
+     *                        mb_substr($text, $i, 1) once per character -
+     *                        mb_substr re-scans from the start of the
+     *                        string on every call, which made this
+     *                        effectively O(n^2) on long input.
+     */
+    function buildPath($chars)
     {
         $leftBoundary = 0;
         $path = $this->createPath();
         $this->acceptors->reset();
-        $len = mb_strlen($text, "UTF-8");
+        $len = count($chars);
         for ($i = 0; $i < $len; $i++) {
-            $ch = mb_substr($text, $i, 1, "UTF-8");
+            $ch = $chars[$i];
             $this->acceptors->transit($ch);
-            $possiblePathInfos = 
+            $possiblePathInfos =
                 $this->pathInfoBuilder->build(
-                    $path, 
-                    $this->acceptors->getFinalAcceptors(), 
-                    $i, 
-                    $leftBoundary, 
-                    $text);
+                    $path,
+                    $this->acceptors->getFinalAcceptors(),
+                    $i,
+                    $leftBoundary,
+                    $chars);
             $selectedPath = $this->pathSelector->selectPath($possiblePathInfos);
             $path[] = $selectedPath;
             if ($selectedPath["type"] != "UNK")
@@ -64,17 +73,22 @@ class WordBreaker
         return $path;
     }
 
-    function rangesToTextList($text, $ranges) 
+    /**
+     * @param string[] $chars See buildPath(). Slicing the pre-split array
+     *                        instead of calling mb_substr($text, ...) once
+     *                        per word avoids the same O(n^2) re-scan for
+     *                        texts with many short tokens.
+     */
+    function rangesToTextList($chars, $ranges)
     {
         $textList = array();
         foreach($ranges as $r) {
-            $w = mb_substr($text, $r["s"], $r["e"] - $r["s"], "UTF-8");
-            $textList[] = $w;
-        }   
+            $textList[] = implode('', array_slice($chars, $r["s"], $r["e"] - $r["s"]));
+        }
         return $textList;
     }
 
-    function pathToRanges($path) 
+    function pathToRanges($path)
     {
         $e = sizeof($path) - 1;
         $ranges = array();
@@ -103,7 +117,8 @@ class WordBreaker
      */
     function breakIntoRanges($text)
     {
-        $path = $this->buildPath($text);
+        $chars = mb_str_split($text, 1, "UTF-8");
+        $path = $this->buildPath($chars);
         $ranges = $this->pathToRanges($path);
         return $ranges;
     }
@@ -115,8 +130,10 @@ class WordBreaker
      */
     function breakIntoWords($text)
     {
-        $ranges = $this->breakIntoRanges($text);
-        $textList = $this->rangesToTextList($text, $ranges);
+        $chars = mb_str_split($text, 1, "UTF-8");
+        $path = $this->buildPath($chars);
+        $ranges = $this->pathToRanges($path);
+        $textList = $this->rangesToTextList($chars, $ranges);
         return $textList;
     }
 

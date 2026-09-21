@@ -9,7 +9,7 @@ as `kamthorn/phlongtaiam`.
 
 Requirement
 -----------
-* PHP 8.1+
+* PHP 8.2+ (tested on 8.2 - 8.5)
 
 Installation
 ------------

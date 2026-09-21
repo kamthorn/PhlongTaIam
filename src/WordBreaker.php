@@ -94,16 +94,8 @@ class WordBreaker
         $ranges = array();
 
         while ($e > 0) {
-            $info = $path[$e];
-            $s = $info["p"];
-
-            if (array_key_exists("merge", $info) && sizeof($ranges) > 0) {
-                $r = $ranges[sizeof($ranges) - 1];
-                $r["s"] = $info["merge"];
-                $s = $r["s"];
-            } else {
-                $ranges[] = array("s" => $s, "e" => $e);
-            }
+            $s = $path[$e]["p"];
+            $ranges[] = array("s" => $s, "e" => $e);
             $e = $s;
         }
 

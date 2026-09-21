@@ -8,13 +8,15 @@ class Dict
 		$this->dict = array();
 	}
 
-	function isEmptyWord($w) {
+	function isNotEmptyWord($w) {
 		return mb_strlen($w, "UTF-8") > 0;
 	}
 
 	function loadDict($dictPath) {
-		$this->dict = explode("\n", file_get_contents($dictPath));
-		$this->dict = array_filter($this->dict, array($this, "isEmptyWord"));
+		$words = explode("\n", file_get_contents($dictPath));
+		// array_filter preserves keys, so a blank line anywhere but at the
+		// end would leave holes that dictSeek's binary search indexes into.
+		$this->dict = array_values(array_filter($words, array($this, "isNotEmptyWord")));
 	}
 	
 	function dictSeek($l, $r, $ch, $strOffset, $pos) {

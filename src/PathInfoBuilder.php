@@ -12,14 +12,7 @@ class PathInfoBuilder {
                           "w" => $acceptor->w + $_info["w"],
                           "unk" => $acceptor->unk + $_info["unk"],
                           "type" => $acceptor->type);
-			if ($acceptor->type == "PART") {
-				for($j = $p + 1; $j <= $i; $j++) {
-					$path[j]["merge"] = $p;
-				}
-				$info["merge"] = $p;
-			}
-			if (!is_null($info))
-				$infos[] = $info;
+			$infos[] = $info;
 		}
 		return $infos;
 	}

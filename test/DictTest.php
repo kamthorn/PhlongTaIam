@@ -49,6 +49,31 @@ final class DictTest extends TestCase
         $this->assertTrue($acceptor->isError);
     }
 
+    public function testLoadDictReindexesAfterDroppingBlankLines(): void
+    {
+        $dict = new Dict();
+        $dict->loadDict(__DIR__ . '/fixtures/dict-with-blank-lines.txt');
+
+        // array_filter keeps the original keys, so without a re-index a blank
+        // line in the middle leaves a hole that the binary search walks into.
+        $this->assertSame(range(0, 3), array_keys($dict->dict));
+    }
+
+    public function testWordsAfterABlankLineAreStillMatchable(): void
+    {
+        $dict = new Dict();
+        $dict->loadDict(__DIR__ . '/fixtures/dict-with-blank-lines.txt');
+        $acceptor = $dict->createAcceptor();
+
+        // กิน is the last entry, i.e. the one a stale index range hides first.
+        $acceptor->transit('ก');
+        $acceptor->transit('ิ');
+        $acceptor->transit('น');
+
+        $this->assertFalse($acceptor->isError);
+        $this->assertTrue($acceptor->isFinal);
+    }
+
     public function testIsFinalIsTrueOnAShorterWordThatIsAlsoAPrefixOfLongerOnes(): void
     {
         $dict = $this->loadFixtureDict();

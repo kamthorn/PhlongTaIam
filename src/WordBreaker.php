@@ -14,9 +14,9 @@ class WordBreaker
     public PathSelector $pathSelector;
 
     /**
-     * @param string $dictPath Path to a UTF-8, newline-separated, lexicographically
-     *                         sorted dictionary file (one word per line), e.g. the
-     *                         bundled data/tdict-std.txt.
+     * @param string $dictPath Path to a UTF-8 dictionary file, one word per
+     *                         line, in any order - e.g. the bundled
+     *                         data/tdict-std.txt.
      */
     public function __construct(string $dictPath)
     {

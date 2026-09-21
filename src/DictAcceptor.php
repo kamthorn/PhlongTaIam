@@ -10,21 +10,26 @@ class DictAcceptor extends AbstractAcceptor
 
     public Dict $dict;
 
-    /** Left bound of the dictionary range still matching the prefix read so far. */
-    public int $l;
-
-    /** Right bound of that range. */
-    public int $r;
+    /** The characters consumed so far. */
+    public string $prefix = '';
 
     public function __construct(Dict $dict)
     {
         $this->dict = $dict;
-        $this->l = 0;
-        $this->r = count($dict->dict) - 1;
     }
 
     public function transit(string $ch): static
     {
-        return $this->dict->transit($this, $ch);
+        $prefix = $this->prefix . $ch;
+        $isWord = $this->dict->lookup($prefix);
+
+        if ($isWord === null) {
+            $this->isError = true;
+        } else {
+            $this->prefix = $prefix;
+            $this->strOffset++;
+            $this->isFinal = $isWord;
+        }
+        return $this;
     }
 }

@@ -14,13 +14,22 @@ final class DictTest extends TestCase
         return $dict;
     }
 
+    /**
+     * @return string[]
+     */
+    private function wordsOf(Dict $dict): array
+    {
+        return array_keys(array_filter($dict->prefixes));
+    }
+
     public function testLoadDictFiltersOutTrailingBlankLine(): void
     {
         $dict = $this->loadFixtureDict();
 
         // mini-dict.txt has 8 words plus a trailing newline; the trailing
         // empty line must not become a bogus dictionary entry.
-        $this->assertCount(8, $dict->dict);
+        $this->assertCount(8, $this->wordsOf($dict));
+        $this->assertArrayNotHasKey('', $dict->prefixes);
     }
 
     public function testTransitAcceptsEveryCharacterOfAKnownWord(): void
@@ -58,14 +67,13 @@ final class DictTest extends TestCase
         $dict->loadDict(__DIR__ . '/fixtures/does-not-exist.txt');
     }
 
-    public function testLoadDictReindexesAfterDroppingBlankLines(): void
+    public function testBlankLinesDoNotBecomeDictionaryEntries(): void
     {
         $dict = new Dict();
         $dict->loadDict(__DIR__ . '/fixtures/dict-with-blank-lines.txt');
 
-        // array_filter keeps the original keys, so without a re-index a blank
-        // line in the middle leaves a hole that the binary search walks into.
-        $this->assertSame(range(0, 3), array_keys($dict->dict));
+        $this->assertSame(['กา', 'กาก', 'การ', 'กิน'], $this->wordsOf($dict));
+        $this->assertArrayNotHasKey('', $dict->prefixes);
     }
 
     public function testWordsAfterABlankLineAreStillMatchable(): void
@@ -74,7 +82,22 @@ final class DictTest extends TestCase
         $dict->loadDict(__DIR__ . '/fixtures/dict-with-blank-lines.txt');
         $acceptor = $dict->createAcceptor();
 
-        // กิน is the last entry, i.e. the one a stale index range hides first.
+        // กิน is the last entry, i.e. the one a stale index range used to hide.
+        $acceptor->transit('ก');
+        $acceptor->transit('ิ');
+        $acceptor->transit('น');
+
+        $this->assertFalse($acceptor->isError);
+        $this->assertTrue($acceptor->isFinal);
+    }
+
+    public function testAnUnsortedDictionaryStillMatches(): void
+    {
+        $dict = new Dict();
+        $dict->addWord('มิ');
+        $dict->addWord('กิน');
+
+        $acceptor = $dict->createAcceptor();
         $acceptor->transit('ก');
         $acceptor->transit('ิ');
         $acceptor->transit('น');

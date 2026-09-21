@@ -111,16 +111,22 @@ class WordBreaker
     }
 
     /**
+     * @param  string[] $chars See buildPath().
+     * @return array<int, array{s: int, e: int}>
+     */
+    private function charsToRanges($chars)
+    {
+        return $this->pathToRanges($this->buildPath($chars));
+    }
+
+    /**
      * @param  string $text UTF-8 text to segment.
      * @return array<int, array{s: int, e: int}> Character-offset ranges (start
      *         inclusive, end exclusive) of each token, in order.
      */
     function breakIntoRanges($text)
     {
-        $chars = mb_str_split($text, 1, "UTF-8");
-        $path = $this->buildPath($chars);
-        $ranges = $this->pathToRanges($path);
-        return $ranges;
+        return $this->charsToRanges(mb_str_split($text, 1, "UTF-8"));
     }
 
     /**
@@ -131,10 +137,7 @@ class WordBreaker
     function breakIntoWords($text)
     {
         $chars = mb_str_split($text, 1, "UTF-8");
-        $path = $this->buildPath($chars);
-        $ranges = $this->pathToRanges($path);
-        $textList = $this->rangesToTextList($chars, $ranges);
-        return $textList;
+        return $this->rangesToTextList($chars, $this->charsToRanges($chars));
     }
 
     /**

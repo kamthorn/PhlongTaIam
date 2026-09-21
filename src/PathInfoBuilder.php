@@ -30,7 +30,7 @@ class PathInfoBuilder {
 		// as escapes rather than literally because they are combining marks:
 		// on their own they have no base character to sit on, so the literal
 		// form renders as unreadable floating glyphs in most editors.
-		if (mb_ereg("[่-๎]", $ch)) {
+		if (mb_ereg("[\u0E48-\u0E4E]", $ch)) {
 			if ($leftBoundary != 0) {
 				$pathAtLeftBoundary = $path[$leftBoundary];
 				$leftBoundary = $pathAtLeftBoundary["p"];

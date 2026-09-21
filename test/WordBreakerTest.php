@@ -49,4 +49,20 @@ final class WordBreakerTest extends TestCase
         $this->assertSame(['กิน', '5'], $this->wordBreaker->breakIntoWords('กิน5'));
         $this->assertSame(['ข้าว', '5'], $this->wordBreaker->breakIntoWords('ข้าว5'));
     }
+
+    public function testInsertWordBreaksJoinsTokensWithAZeroWidthSpaceByDefault(): void
+    {
+        $this->assertSame(
+            "ฉัน\u{200B}กิน\u{200B}ข้าว\u{200B}ชิ\u{200B}มิ",
+            $this->wordBreaker->insertWordBreaks('ฉันกินข้าวชิมิ')
+        );
+    }
+
+    public function testInsertWordBreaksAcceptsACustomBreakCharacter(): void
+    {
+        $this->assertSame(
+            'ฉัน|กิน',
+            $this->wordBreaker->insertWordBreaks('ฉันกิน', '|')
+        );
+    }
 }

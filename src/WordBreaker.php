@@ -119,5 +119,25 @@ class WordBreaker
         $textList = $this->rangesToTextList($text, $ranges);
         return $textList;
     }
+
+    /**
+     * Segment $text and re-join it with $breakChar between each token.
+     *
+     * Thai script has no spaces between words, so HTML/PDF renderers (e.g.
+     * dompdf, mPDF, wkhtmltopdf) treat a long run of Thai text as a single
+     * unbreakable "word" and either overflow its container or refuse to
+     * wrap at all. Inserting a zero-width space (the default $breakChar)
+     * between words gives the renderer real line-break opportunities
+     * without changing how the text looks.
+     *
+     * @param  string $text      UTF-8 text to segment.
+     * @param  string $breakChar Inserted between each token. Defaults to
+     *                           U+200B (zero-width space).
+     * @return string $text with $breakChar inserted between tokens.
+     */
+    function insertWordBreaks($text, $breakChar = "\u{200B}")
+    {
+        return implode($breakChar, $this->breakIntoWords($text));
+    }
 }
 ?>

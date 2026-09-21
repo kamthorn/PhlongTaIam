@@ -151,6 +151,45 @@ public function download(Invoice $invoice)
 `@thaiwordwrap` escapes the value for you (like `{{ }}` does), so pass
 the raw, unescaped text - do not combine it with `{{ }}` or `e()`.
 
+Accuracy
+--------
+How well this segments your text depends almost entirely on whether the
+dictionary knows the words in it. Measured against the LST20 corpus, words
+the dictionary knows are segmented correctly 99% of the time, while **98% of
+all errors are words it has never seen**. The bundled `tdict-std.txt` holds
+base words only - it has `โรง` and `เรียน`, but not `โรงเรียน`.
+
+So the way to improve accuracy is to add the vocabulary of the text you
+actually process. Two tools in the repository (not shipped in the package)
+help with that. They read an annotated corpus in LST20 or CoNLL format; no
+corpus is included, point them at your own copy.
+
+```bash
+# What is my accuracy right now?
+php tools/evaluate.php --corpus=/path/to/LST20_Corpus/eval
+
+# Build a dictionary from text of the same kind, then measure again
+php tools/build-dictionary.php --corpus=/path/to/LST20_Corpus/train \
+    --min-freq=5 --exclude=data/tdict-std.txt --out=my-words.txt
+php tools/evaluate.php --corpus=/path/to/LST20_Corpus/eval --dict=my-words.txt
+```
+
+In that example the 8,000 words this adds take word-level F1 from **0.67 to
+0.90**. Note that more words is not automatically better: keeping every word
+in the corpus, including ones seen once, scored *worse* than keeping those
+seen at least five times, because rare words add ambiguity without adding
+coverage. `--min-freq` is worth tuning on your own data.
+
+Load the result alongside the standard list:
+
+```php
+$wordBreaker = new WordBreaker([$standardList, 'my-words.txt']);
+```
+
+A dictionary built this way is derived from that corpus, so check the
+corpus's licence before redistributing it. Research corpora frequently allow
+use but not redistribution.
+
 Word list
 ---------
 Word lists were taken from [LibThai](http://linux.thai.net/projects/libthai)

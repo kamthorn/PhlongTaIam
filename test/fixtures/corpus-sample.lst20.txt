@@ -1,0 +1,7 @@
+ฉัน	PR	O	B_CLS
+กิน	VV	O	I_CLS
+ข้าว	NN	O	E_CLS
+
+โรงเรียน	NN	O	B_CLS
+_	PU	O	I_CLS
+เปิด	VV	O	E_CLS

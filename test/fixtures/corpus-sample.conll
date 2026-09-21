@@ -1,0 +1,7 @@
+# Tree 1
+1	ฉัน	ฉัน	PR	PR	_	2	HEAD	_	np
+2	กิน|ข้าว	กิน|ข้าว	VV	VV|NN	_	0	ROOT	_	s
+
+# Tree 2
+1	โรงเรียน	โรงเรียน	NN	NN	_	2	HEAD	_	np
+2	เปิด	เปิด	VV	VV	_	0	ROOT	_	s

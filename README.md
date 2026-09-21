@@ -3,6 +3,10 @@ PhlongTaIam
 
 PHP Thai word breaker
 
+This is a maintained fork of [veer66/PhlongTaIam](https://github.com/veer66/PhlongTaIam),
+which is no longer actively developed. Install and require this package
+as `kamthorn/phlongtaiam`.
+
 Requirement
 -----------
 * PHP 8.1+
@@ -10,7 +14,7 @@ Requirement
 Installation
 ------------
 ```bash
-composer require veer66/phlongtaiam
+composer require kamthorn/phlongtaiam
 ```
 
 Usage
@@ -20,7 +24,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 use PhlongTaIam\WordBreaker;
 
-$wordBreaker = new WordBreaker(__DIR__ . '/vendor/veer66/phlongtaiam/data/tdict-std.txt');
+$wordBreaker = new WordBreaker(__DIR__ . '/vendor/kamthorn/phlongtaiam/data/tdict-std.txt');
 
 foreach ($wordBreaker->breakIntoWords('ฉันกินข้าวชิมิ') as $word) {
     echo $word . "\n";
@@ -96,4 +100,5 @@ vendor/bin/phpunit
 
 Demo
 ----
-http://vi.8fold.in/s/demo.php
+A local, standalone HTML demo is included at `example/demo.php` (see Usage
+above for how to run it without Composer).

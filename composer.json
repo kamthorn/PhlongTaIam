@@ -1,5 +1,5 @@
 {
-    "name": "veer66/phlongtaiam",
+    "name": "kamthorn/phlongtaiam",
     "type": "library",
     "description": "Thai word breaker for PHP",
     "license": "MIT",
@@ -33,7 +33,7 @@
             }
         }
     },
-    "homepage": "http://github.com/veer66/PhlongTaIam",
+    "homepage": "https://github.com/kamthorn/PhlongTaIam",
     "config": {
         "policy": {
             "advisories": {
